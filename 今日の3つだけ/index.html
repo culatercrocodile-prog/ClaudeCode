@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>今日の3つだけ</title>
+<style>
+  :root {
+    --bg: #f4f1ea;
+    --card: #ffffff;
+    --text: #2b2b2b;
+    --sub: #8a8577;
+    --accent: #e0703a;
+    --accent-soft: #f6ddce;
+    --done: #6fa87c;
+    --border: #e7e2d6;
+    --shadow: 0 8px 24px rgba(60, 50, 30, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1a17;
+      --card: #262320;
+      --text: #ece7dd;
+      --sub: #a39c8c;
+      --accent: #ef8354;
+      --accent-soft: #3a2c22;
+      --done: #7fbf8e;
+      --border: #3a352c;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Hiragino Sans", "Yu Gothic UI", "Segoe UI", system-ui, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .app {
+    width: 100%;
+    max-width: 420px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  h1 {
+    font-size: 26px;
+    margin: 0 0 6px;
+    letter-spacing: 0.02em;
+  }
+  .date {
+    color: var(--sub);
+    font-size: 14px;
+  }
+  .streak {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 22px;
+    border: 1px solid var(--border);
+  }
+  .setup input {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .setup input:focus {
+    border-color: var(--accent);
+  }
+  .setup button {
+    width: 100%;
+    margin-top: 8px;
+    padding: 13px;
+    border: none;
+    border-radius: 12px;
+    background: var(--accent);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.15s;
+  }
+  .setup button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .setup button:not(:disabled):active {
+    transform: scale(0.97);
+  }
+  .hint {
+    color: var(--sub);
+    font-size: 12.5px;
+    text-align: center;
+    margin-top: 12px;
+  }
+  ul.tasks {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  li.task {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 4px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+  }
+  li.task:last-child { border-bottom: none; }
+  .checkbox {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.2s;
+    position: relative;
+  }
+  .checkbox svg {
+    width: 14px;
+    height: 14px;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  li.task.done .checkbox {
+    background: var(--done);
+    border-color: var(--done);
+    transform: scale(1.05);
+  }
+  li.task.done .checkbox svg { opacity: 1; transform: scale(1); }
+  .task-text {
+    font-size: 16px;
+    flex: 1;
+    transition: color 0.2s, opacity 0.2s;
+  }
+  li.task.done .task-text {
+    text-decoration: line-through;
+    color: var(--sub);
+    opacity: 0.75;
+  }
+  .celebration {
+    text-align: center;
+    padding: 10px 0 4px;
+    font-size: 15px;
+    color: var(--done);
+    font-weight: 700;
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+    transition: opacity 0.4s;
+  }
+  .celebration.show {
+    opacity: 1;
+    height: auto;
+    padding: 14px 0 4px;
+  }
+  .reset-link {
+    display: block;
+    text-align: center;
+    margin-top: 16px;
+    color: var(--sub);
+    font-size: 12.5px;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  @keyframes pop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.25); }
+    100% { transform: scale(1); }
+  }
+  .checkbox.pop { animation: pop 0.35s ease; }
+
+  .confetti {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 999;
+  }
+  .confetti span {
+    position: absolute;
+    top: -10px;
+    font-size: 18px;
+    animation: fall linear forwards;
+  }
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(360deg); opacity: 0.2; }
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>今日の3つだけ</h1>
+      <div class="date" id="dateLabel"></div>
+      <div class="streak" id="streakLabel"></div>
+    </header>
+
+    <div class="card" id="card"></div>
+
+    <div class="reset-link" id="resetLink" style="display:none;">今日のタスクをやり直す</div>
+  </div>
+
+<script>
+(function () {
+  const todayKey = () => {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  };
+  const dateLabel = () => {
+    const d = new Date();
+    const days = ['日','月','火','水','木','金','土'];
+    return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}）`;
+  };
+
+  const STORAGE_KEY = 'today3-' + todayKey();
+  const STREAK_KEY = 'today3-streak';
+  const LAST_DONE_KEY = 'today3-lastCompletedDate';
+
+  const card = document.getElementById('card');
+  const resetLink = document.getElementById('resetLink');
+  document.getElementById('dateLabel').textContent = dateLabel();
+
+  function loadState() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }
+  function saveState(state) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function getStreak() {
+    return parseInt(localStorage.getItem(STREAK_KEY) || '0', 10);
+  }
+
+  function updateStreakLabel() {
+    const s = getStreak();
+    const el = document.getElementById('streakLabel');
+    el.textContent = s > 0 ? `🔥 ${s}日連続達成中` : '';
+  }
+
+  function checkAllDoneAndUpdateStreak(state) {
+    const allDone = state.tasks.every(t => t.done);
+    if (allDone && localStorage.getItem(LAST_DONE_KEY) !== todayKey()) {
+      const streak = getStreak() + 1;
+      localStorage.setItem(STREAK_KEY, String(streak));
+      localStorage.setItem(LAST_DONE_KEY, todayKey());
+    }
+    return allDone;
+  }
+
+  function launchConfetti() {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    const emojis = ['🎉','✨','🎊','⭐'];
+    for (let i = 0; i < 24; i++) {
+      const s = document.createElement('span');
+      s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      s.style.left = Math.random() * 100 + 'vw';
+      s.style.animationDuration = (2 + Math.random() * 1.5) + 's';
+      s.style.fontSize = (14 + Math.random() * 14) + 'px';
+      el.appendChild(s);
+    }
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3600);
+  }
+
+  function renderSetup() {
+    resetLink.style.display = 'none';
+    card.className = 'card setup';
+    card.innerHTML = `
+      <input type="text" maxlength="60" placeholder="1つ目のタスク" id="t0">
+      <input type="text" maxlength="60" placeholder="2つ目のタスク" id="t1">
+      <input type="text" maxlength="60" placeholder="3つ目のタスク" id="t2">
+      <button id="startBtn" disabled>今日はこれで決める</button>
+      <div class="hint">欲張らない。今日は、この3つだけ。</div>
+    `;
+    const inputs = [0,1,2].map(i => document.getElementById('t'+i));
+    const btn = document.getElementById('startBtn');
+    inputs.forEach(inp => inp.addEventListener('input', () => {
+      btn.disabled = !inputs.some(i => i.value.trim().length > 0);
+    }));
+    btn.addEventListener('click', () => {
+      const tasks = inputs
+        .map(i => i.value.trim())
+        .filter(v => v.length > 0)
+        .map(text => ({ text, done: false }));
+      if (tasks.length === 0) return;
+      saveState({ tasks });
+      renderTasks();
+    });
+  }
+
+  function renderTasks() {
+    const state = loadState();
+    resetLink.style.display = 'block';
+    card.className = 'card';
+    const allDone = checkAllDoneAndUpdateStreak(state);
+    updateStreakLabel();
+
+    card.innerHTML = `
+      <ul class="tasks"></ul>
+      <div class="celebration ${allDone ? 'show' : ''}" id="celebration">
+        今日はやりきった。よくやった。
+      </div>
+    `;
+    const ul = card.querySelector('ul.tasks');
+    state.tasks.forEach((task, idx) => {
+      const li = document.createElement('li');
+      li.className = 'task' + (task.done ? ' done' : '');
+      li.innerHTML = `
+        <div class="checkbox">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5L9.5 18L20 6" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="task-text"></div>
+      `;
+      li.querySelector('.task-text').textContent = task.text;
+      li.addEventListener('click', () => {
+        const s = loadState();
+        s.tasks[idx].done = !s.tasks[idx].done;
+        saveState(s);
+        const wasAllDone = allDone;
+        const nowAllDone = s.tasks.every(t => t.done);
+        const cb = li.querySelector('.checkbox');
+        li.classList.toggle('done');
+        cb.classList.add('pop');
+        setTimeout(() => cb.classList.remove('pop'), 350);
+        if (nowAllDone && !wasAllDone) {
+          checkAllDoneAndUpdateStreak(s);
+          updateStreakLabel();
+          document.getElementById('celebration').classList.add('show');
+          launchConfetti();
+        } else if (!nowAllDone) {
+          document.getElementById('celebration').classList.remove('show');
+        }
+      });
+      ul.appendChild(li);
+    });
+  }
+
+  resetLink.addEventListener('click', () => {
+    if (confirm('今日のタスクをリセットしますか？')) {
+      localStorage.removeItem(STORAGE_KEY);
+      renderSetup();
+    }
+  });
+
+  updateStreakLabel();
+  const existing = loadState();
+  if (existing && existing.tasks && existing.tasks.length > 0) {
+    renderTasks();
+  } else {
+    renderSetup();
+  }
+})();
+</script>
+</body>
+</html>
