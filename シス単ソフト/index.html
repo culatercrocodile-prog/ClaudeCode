@@ -105,11 +105,15 @@ function rStudy(){
   const id=S.order[S.idx],w=byId.get(id),n=S.order.length;
   $.innerHTML=header('学習モード',S.idx+1,n)+
   `<div class="card"><div class="word">${esc(w[1])}</div><div class="mean">${esc(w[2])}</div>
-   <button class="c" id="pl">🔊 もう一度聞く</button></div>
+   <button class="c" id="pl">🔊 もう一度聞く</button>
+   <button class="c dk" id="mute">${S.mute?'🔇 自動音声：オフ（タップでオンに）':'🔊 自動音声：オン（タップでオフに）'}</button></div>
    <div class="row"><button class="c" id="prev" ${S.idx?'':'disabled'}>← 前へ</button>
-   <button class="c pri" id="next">${S.idx===n-1?'テストへ':'次へ →'}</button></div>`;
-  speak(w[1]);
+   <button class="c pri" id="next">${S.idx===n-1?'テストへ':'次へ →'}</button></div>
+   <button class="dk" id="redo" ${S.idx?'':'disabled'}>↺ 学習を最初からやり直す</button>`;
+  if(!S.mute)speak(w[1]);
   document.getElementById('pl').onclick=()=>speak(w[1]);
+  document.getElementById('mute').onclick=()=>{S.mute=!S.mute;if(S.mute&&'speechSynthesis' in window)speechSynthesis.cancel();save();render()};
+  document.getElementById('redo').onclick=()=>{S.idx=0;save();render()};
   document.getElementById('prev').onclick=()=>{S.idx--;save();render()};
   document.getElementById('next').onclick=()=>{
     if(S.idx===n-1){S.phase='test';S.idx=0;S.order=shuffle(S.pool);S.answers=[];S.tq=null;}
