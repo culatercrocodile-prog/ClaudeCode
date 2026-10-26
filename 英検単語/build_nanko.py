@@ -25,7 +25,7 @@ for n in (1, 2, 3):
     html = html.replace("シス単トレーナー", f"南高英単語レベル{n}トレーナー")
     html = html.replace("sisutan-v1", f"nanko-level{n}-v1")
     html = html.replace("STAGE4_FROM=1701", "STAGE4_FROM=1e9")
-    out = here / f"南高の英単語レベル{n}アプリ"
+    out = here.parent / f"minatan{n}"
     out.mkdir(exist_ok=True)
     (out / "index.html").write_text(html, encoding="utf-8")
     print(f"レベル{n}: {len(words)}語 -> {out.name}/index.html")
