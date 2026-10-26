@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>南高英単語レベル3トレーナー</title>
+<style>
+:root{--bg:#f5f6fa;--card:#fff;--fg:#1f2430;--sub:#6b7280;--pri:#2563eb;--ok:#16a34a;--ng:#dc2626;--line:#e5e7eb}
+@media(prefers-color-scheme:dark){:root{--bg:#12141a;--card:#1c1f28;--fg:#e8eaf0;--sub:#9aa1b0;--pri:#5b8cff;--ok:#34d399;--ng:#f87171;--line:#2b303c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;line-height:1.5}
+#app{max-width:560px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:14px}
+h1{font-size:20px;margin:4px 0 14px}
+.bar{display:flex;justify-content:space-between;color:var(--sub);font-size:13px;margin-bottom:8px}
+.prog{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:14px}
+.prog i{display:block;height:100%;background:var(--pri)}
+.word{font-size:36px;font-weight:700;text-align:center;margin:18px 0;word-break:break-word}
+.mean{font-size:20px;text-align:center;margin:8px 0 14px}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:12px;padding:14px 16px;width:100%;margin-top:10px;font-size:16px;text-align:left}
+button.pri{background:var(--pri);color:#fff;border-color:var(--pri);text-align:center;font-weight:700}
+button.c{text-align:center}
+button.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+button.ng{background:var(--ng);color:#fff;border-color:var(--ng)}
+button.dk{color:var(--sub);text-align:center}
+button:disabled{opacity:.9;cursor:default}
+.row{display:flex;gap:10px}.row button{flex:1}
+.stat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)}
+.sub{color:var(--sub);font-size:13px}
+.list div{padding:6px 0;border-bottom:1px solid var(--line);font-size:15px}
+.big{font-size:44px;font-weight:800;text-align:center}
+.small-btn{width:auto;padding:6px 12px;font-size:13px;margin:0}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const WORDS=/*DATA*/[[1,"alcoholic","アルコールの"],[2,"ambition","野望"],[3,"charitable","慈悲深い"],[4,"compliment","賛辞"],[5,"exotic","異国風の"],[6,"feminine","女性の"],[7,"glance","ちらりと見る"],[8,"likelihood","可能性"],[9,"pioneer","先駆者"],[10,"prosperity","繁栄"],[11,"shortage","不足"],[12,"sphere","球"],[13,"stare","じっと見る"],[14,"verbal","言葉の"],[15,"gesture","身振り"],[16,"snack","軽食"],[17,"vet","獣医"],[18,"conclude","結論を下す"],[19,"drought","干ばつ"],[20,"hospitality","もてなし"],[21,"hostage","人質"],[22,"lad","若者"],[23,"literacy","読み書き能力"],[24,"misleading","誤解を招く"],[25,"moisture","水分"],[26,"monument","記念碑"],[27,"mortality","死亡"],[28,"particle","粒子"],[29,"petroleum","石油"],[30,"rebuild","再建する"],[31,"reservoir","貯水池"],[32,"scrap","くず"],[33,"slope","斜面"],[34,"stern","厳しい"],[35,"stiff","硬い"],[36,"terrific","すばらしい"],[37,"unite","団結させる"],[38,"fry","揚げる"],[39,"biography","伝記"],[40,"bury","埋める"],[41,"dislike","嫌い"],[42,"emerge","現れる"],[43,"foolish","ばかな"],[44,"heir","相続人"],[45,"landlord","家主"],[46,"landmark","名所"],[47,"liable","責任がある"],[48,"misery","惨めさ"],[49,"plague","疫病"],[50,"recruit","採用する"],[51,"tomb","墓"],[52,"voyage","航海"],[53,"sour","すっぱい"],[54,"consume","消費する"],[55,"corridor","廊下"],[56,"gossip","うわさ話"],[57,"immense","莫大な"],[58,"interfere","干渉する"],[59,"intersection","交差点"],[60,"juvenile","青少年の"],[61,"mankind","人類"],[62,"selective","選択的な"],[63,"self-esteem","自尊心"],[64,"thief","泥棒"],[65,"verify","確かめる"],[66,"whistle","笛"],[67,"upstairs","上の階へ"],[68,"appetite","食欲"],[69,"calculate","計算する"],[70,"consult","相談する"],[71,"distinguish","区別する"],[72,"dominate","支配する"],[73,"hypothesis","仮説"],[74,"inclined","傾向がある"],[75,"optimistic","楽観的な"],[76,"pharmacy","薬局"],[77,"regulate","規制する"],[78,"surplus","余剰"],[79,"swallow","飲み込む"],[80,"vague","あいまいな"],[81,"lively","活発な"],[82,"antique","骨董品"],[83,"autonomy","自治"],[84,"breeze","そよ風"],[85,"commodity","商品"],[86,"coral","サンゴ"],[87,"envelope","封筒"],[88,"fade","薄れる"],[89,"fatigue","疲労"],[90,"fragile","壊れやすい"],[91,"fulfill","果たす"],[92,"instinct","本能"],[93,"irony","皮肉"],[94,"lethal","致命的な"],[95,"mortal","死すべき"],[96,"prompt","促す"],[97,"thrust","突く"],[98,"allowance","こづかい"],[99,"clarify","明らかにする"],[100,"constitute","構成する"],[101,"diagram","図表"],[102,"dismiss","解雇する"],[103,"incorporate","組み入れる"],[104,"lengthy","長い"],[105,"mock","あざける"],[106,"obscure","不明瞭な"],[107,"recession","不景気"],[108,"utter","発する"],[109,"yell","大声で叫ぶ"],[110,"advertisement","広告"],[111,"analyze","分析する"],[112,"daylight","日光"],[113,"disclose","暴露する"],[114,"envy","うらやむ"],[115,"exile","追放"],[116,"monopoly","独占"],[117,"outrage","激怒"],[118,"promptly","即座に"],[119,"sincere","誠実な"],[120,"slaughter","虐殺"],[121,"spill","こぼす"],[122,"testify","証言する"],[123,"tolerate","我慢する"],[124,"boil","沸かす"],[125,"obey","従う"],[126,"afterward","その後"],[127,"breakthrough","飛躍的進歩"],[128,"convey","伝える"],[129,"decay","腐敗"],[130,"entertain","楽しませる"],[131,"exploit","利用する"],[132,"imply","ほのめかす"],[133,"naughty","いたずらな"],[134,"notorious","悪名高い"],[135,"reef","岩礁"],[136,"quiz","小テスト"],[137,"vocabulary","語彙"],[138,"addicted","中毒である"],[139,"broadly","広く"],[140,"confess","告白する"],[141,"deliberate","故意の"],[142,"despair","絶望"],[143,"drift","漂う"],[144,"endure","耐える"],[145,"geological","地質学的な"],[146,"hatch","ふ化する"],[147,"inadequate","不十分な"],[148,"nap","うたた寝"],[149,"pardon","許す"],[150,"persuade","説得する"],[151,"predecessor","前任者"],[152,"premise","前提"],[153,"reckless","無謀な"],[154,"remedy","治療法"],[155,"scent","香り"],[156,"stimulus","刺激"],[157,"absorb","吸収する"],[158,"accompany","同行する"],[159,"accord","一致"],[160,"cuisine","料理"],[161,"doom","運命"],[162,"exhaust","疲れ果てさせる"],[163,"flee","逃げる"],[164,"glimpse","ちらりと見ること"],[165,"inferior","劣った"],[166,"injustice","不正"],[167,"interpret","解釈する"],[168,"masterpiece","傑作"],[169,"obesity","肥満"],[170,"per capita","一人当たりの"],[171,"reluctant","気が進まない"],[172,"respiratory","呼吸器に関する"],[173,"rotten","腐った"],[174,"spoil","台無しにする"],[175,"suburb","郊外"],[176,"temper","気質"],[177,"undergo","経験する"],[178,"conductor","指揮者"],[179,"communism","共産主義"],[180,"confront","立ち向かう"],[181,"decisive","決定的な"],[182,"epidemic","流行病"],[183,"evolve","進化する"],[184,"explode","爆発する"],[185,"luggage","荷物"],[186,"primitive","原始的な"],[187,"restrict","制限する"],[188,"righteous","正しい"],[189,"seize","つかむ"],[190,"skeleton","骨格"],[191,"vacant","空いている"],[192,"playground","運動場"],[193,"surround","囲む"],[194,"cautious","用心深い"],[195,"cooperate","協力する"],[196,"curb","抑制する"],[197,"detached","切り離された"],[198,"distribute","配る"],[199,"hesitate","ためらう"],[200,"hygiene","衛生"],[201,"imaginary","架空の"],[202,"kindergarten","幼稚園"],[203,"mechanic","整備士"],[204,"modify","修正する"],[205,"neglect","怠る"],[206,"patriotic","愛国的な"],[207,"prejudice","偏見"],[208,"backpack","リュックサック"],[209,"sailor","船員"],[210,"compensate","補償する"],[211,"definite","明確な"],[212,"ecological","生態"],[213,"ecosystem","生態系"],[214,"exclude","除く"],[215,"exempt","免除された"],[216,"faint","かすかな"],[217,"forge","偽造する"],[218,"hierarchy","階層"],[219,"metabolism","新陳代謝"],[220,"prevalent","広く行き渡った"],[221,"render","～にする"],[222,"sociology","社会学"],[223,"specify","明記する"],[224,"tenant","借家人"],[225,"abundant","豊富な"],[226,"attribute","～のせいにする"],[227,"complement","補完する"],[228,"conquer","征服する"],[229,"crawl","はう"],[230,"credible","信用できる"],[231,"digit","桁"],[232,"dinosaur","恐竜"],[233,"herd","群れ"],[234,"interval","間隔"],[235,"literal","文字通りの"],[236,"mold","型"],[237,"offspring","子孫"],[238,"relieve","和らげる"],[239,"vein","血管"],[240,"worm","虫"],[241,"insect","昆虫"],[242,"volcano","火山"],[243,"calculation","計算"],[244,"dementia","認知症"],[245,"diploma","卒業証書"],[246,"dispatch","派遣する"],[247,"extinction","絶滅"],[248,"reckon","考える"],[249,"restriction","制限"],[250,"stubborn","頑固な"],[251,"transplant","移植"],[252,"attach","取り付ける"],[253,"bind","縛る"],[254,"cue","合図"],[255,"deed","行い"],[256,"forthcoming","来たるべき"],[257,"greedy","貪欲な"],[258,"merge","合併する"],[259,"naive","世間知らずの"],[260,"prestige","名声"],[261,"rigid","厳格な"],[262,"splendid","見事な"],[263,"telescope","望遠鏡"],[264,"textile","織物"],[265,"utilize","利用する"],[266,"violate","違反する"],[267,"vivid","鮮やかな"],[268,"cereal","シリアル"],[269,"rainy","雨の"],[270,"skate","スケートをする"],[271,"supper","夕食"],[272,"thirsty","のどが渇いた"],[273,"whisper","ささやく"],[274,"arrogant","傲慢な"],[275,"contempt","軽蔑"],[276,"ecology","生態学"],[277,"ingredient","材料"],[278,"nod","うなずく"],[279,"potent","強力な"],[280,"rust","さび"],[281,"scrutiny","精査"],[282,"upright","直立した"],[283,"vain","むだな"],[284,"worthwhile","価値のある"],[285,"greet","挨拶する"],[286,"anticipate","予期する"],[287,"bankrupt","破産した"],[288,"greed","欲"],[289,"inflammation","炎症"],[290,"metaphor","隠喩"],[291,"millionaire","百万長者"],[292,"pact","協定"],[293,"patriot","愛国者"],[294,"patron","後援者"],[295,"renew","更新する"],[296,"resemble","似ている"],[297,"revolt","反乱"],[298,"rumor","うわさ"],[299,"shrink","縮む"],[300,"solitary","孤独な"],[301,"sorrow","悲しみ"],[302,"thrive","栄える"],[303,"undertake","引き受ける"],[304,"atom","原子"],[305,"bleed","出血する"],[306,"condemn","非難する"],[307,"disguise","変装する"],[308,"empathy","共感"],[309,"feasible","実行可能な"],[310,"impulse","衝動"],[311,"integrate","統合する"],[312,"lecturer","講師"],[313,"obstacle","障害"],[314,"perceive","知覚する"],[315,"slogan","標語"],[316,"specimen","標本"],[317,"steer","操縦する"],[318,"strive","努力する"],[319,"thrill","わくわくさせる"],[320,"accuse","非難する"],[321,"digest","消化する"],[322,"disadvantage","不利な点"],[323,"distract","気をそらす"],[324,"friction","摩擦"],[325,"illustrate","説明する"],[326,"limitation","制限"],[327,"linguistic","言語の"],[328,"lump","塊"],[329,"pedestrian","歩行者"],[330,"predator","捕食動物"],[331,"spontaneous","自発的な"],[332,"tactic","戦術"],[333,"grape","ぶどう"],[334,"haircut","散髪"],[335,"appoint","任命する"],[336,"comprehend","理解する"],[337,"compulsory","義務の"],[338,"contaminated","汚染された"],[339,"counterpart","相当するもの"],[340,"creed","信条"],[341,"crisp","パリッとした"],[342,"delegate","代表者"],[343,"emission","排出"],[344,"fracture","骨折"],[345,"gaze","見つめる"],[346,"idle","怠けた"],[347,"limb","手足"],[348,"roar","ほえる"],[349,"stain","しみ"],[350,"apt","しがちである"],[351,"beverage","飲み物"],[352,"emphasize","強調する"],[353,"flock","群れ"],[354,"grim","厳しい"],[355,"helpless","無力な"],[356,"hemisphere","半球"],[357,"intriguing","興味深い"],[358,"irrigation","灌漑"],[359,"manipulate","操る"],[360,"moist","湿った"],[361,"monarch","君主"],[362,"preach","説教する"],[363,"retrieve","取り戻す"],[364,"trait","特性"],[365,"troop","軍隊"],[366,"defect","欠陥"],[367,"drown","おぼれ死ぬ"],[368,"manifest","明白な"],[369,"ransom","身代金"],[370,"reinforce","強化する"],[371,"revive","復活させる"],[372,"rigorous","厳格な"],[373,"scenery","風景"],[374,"skeptical","懐疑的な"],[375,"staple","主要な"],[376,"suspend","一時停止する"],[377,"unanimous","満場一致の"],[378,"confuse","混乱させる"],[379,"noisy","騒がしい"],[380,"cite","引用する"],[381,"govern","統治する"],[382,"gradual","徐々の"],[383,"imminent","差し迫った"],[384,"lag","遅れる"],[385,"lure","誘惑する"],[386,"malicious","悪意のある"],[387,"molecule","分子"],[388,"peculiar","奇妙な"],[389,"replica","複製"],[390,"ripe","熟した"],[391,"stimulate","刺激する"],[392,"susceptible","影響を受けやすい"],[393,"transmit","伝える"],[394,"tutor","家庭教師"],[395,"wander","さまよう"],[396,"pronounce","発音する"],[397,"accelerate","加速する"],[398,"advertise","広告する"],[399,"assign","割り当てる"],[400,"chew","かむ"],[401,"circumstance","状況"],[402,"congestion","混雑"],[403,"disregard","無視する"],[404,"earnest","真剣な"],[405,"erase","消す"],[406,"extinct","絶滅した"],[407,"forbid","禁じる"],[408,"knit","編む"],[409,"morale","士気"],[410,"novelty","目新しさ"],[411,"optimism","楽観主義"],[412,"remark","述べる"],[413,"spur","拍車をかける"],[414,"suppress","抑える"],[415,"trivial","些細な"],[416,"versatile","多才な"],[417,"anthropology","人類学"],[418,"fashionable","流行の"],[419,"fetch","取ってくる"],[420,"formidable","恐るべき"],[421,"posture","姿勢"],[422,"sway","揺れる"],[423,"undermine","弱体化させる"],[424,"withstand","耐える"],[425,"accustomed","慣れた"],[426,"applicant","応募者"],[427,"assemble","組み立てる"],[428,"dread","恐れる"],[429,"erosion","浸食"],[430,"plausible","もっともらしい"],[431,"stitch","縫う"],[432,"swell","膨れる"],[433,"symptom","症状"],[434,"astronomy","天文学"],[435,"await","待つ"],[436,"criticize","批判する"],[437,"drastic","抜本的な"],[438,"edible","食べられる"],[439,"endorse","承認する"],[440,"inspect","検査する"],[441,"paradox","逆説"],[442,"plead","嘆願する"],[443,"portray","描く"],[444,"refrain","控える"],[445,"reproduce","複製する"],[446,"seldom","めったに～ない"],[447,"barbecue","バーベキュー"],[448,"assert","主張する"],[449,"blossom","花"],[450,"comprise","構成する"],[451,"dim","薄暗い"],[452,"empirical","経験的な"],[453,"fertile","肥沃な"],[454,"peasant","小作農"],[455,"presume","推定する"],[456,"refrigerator","冷蔵庫"],[457,"waiter","ウェイター"],[458,"disgust","嫌悪"],[459,"disturbance","妨害"],[460,"exquisite","見事な"],[461,"famine","飢饉"],[462,"handicap","障害"],[463,"hostility","敵意"],[464,"interrupt","さえぎる"],[465,"invade","侵略する"],[466,"overthrow","打倒する"],[467,"scarce","乏しい"],[468,"sibling","きょうだい"],[469,"spectacle","光景"],[470,"unrest","不安"],[471,"weary","疲れた"],[472,"astronaut","宇宙飛行士"],[473,"careless","不注意な"],[474,"attain","達成する"],[475,"cheerful","陽気な"],[476,"climax","頂点"],[477,"flaw","欠点"],[478,"isolate","孤立させる"],[479,"motivate","動機づける"],[480,"poke","突く"],[481,"restless","落ち着かない"],[482,"typhoon","台風"],[483,"avail","役立つ"],[484,"commence","始まる"],[485,"congratulate","祝う"],[486,"cynical","冷笑的な"],[487,"disrupt","混乱させる"],[488,"redundant","余分な"],[489,"sermon","説教"],[490,"slender","ほっそりした"],[491,"tease","からかう"],[492,"adolescent","青年期の"],[493,"dictate","命令する"],[494,"eccentric","風変わりな"],[495,"kernel","核心"],[496,"orphan","孤児"],[497,"priceless","非常に貴重な"],[498,"rotate","回転する"],[499,"invent","発明する"],[500,"windy","風の強い"],[501,"adhere","くっつく"],[502,"ambiguous","あいまいな"],[503,"concession","譲歩"],[504,"discourage","落胆させる"],[505,"disposable","使い捨ての"],[506,"dwell","住む"],[507,"jolly","陽気な"],[508,"latitude","緯度"],[509,"nominate","指名する"],[510,"offend","怒らせる"],[511,"wary","用心深い"],[512,"disturb","邪魔する"],[513,"abruptly","不意に"],[514,"catastrophe","大災害"],[515,"commute","通勤する"],[516,"contend","争う"],[517,"convict","有罪とする"],[518,"eminent","著名な"],[519,"endeavor","努力"],[520,"hardship","苦難"],[521,"implication","含意"],[522,"induce","引き起こす"],[523,"irrational","不合理な"],[524,"subsidy","補助金"],[525,"superficial","表面的な"],[526,"tame","飼いならされた"],[527,"vapor","蒸気"],[528,"vow","誓う"],[529,"cloudy","曇った"],[530,"acquaintance","知り合い"],[531,"amend","修正する"],[532,"bureaucracy","官僚制"],[533,"fragment","断片"],[534,"impatient","我慢できない"],[535,"intricate","複雑な"],[536,"penetrate","貫く"],[537,"prevail","普及する"],[538,"sewage","下水"],[539,"slang","俗語"],[540,"dialect","方言"],[541,"downfall","没落"],[542,"ethic","倫理(学)"],[543,"expire","期限が切れる"],[544,"fugitive","逃亡者"],[545,"haunt","出没する"],[546,"indulge","ふける"],[547,"inscription","碑文"],[548,"intuition","直観"],[549,"invaluable","計り知れない価値の"],[550,"conform","従う"],[551,"devote","捧げる"],[552,"dispose","処分する"],[553,"evacuate","避難させる"],[554,"flourish","繁栄する"],[555,"marvelous","驚くべき"],[556,"overlook","見渡す"],[557,"persist","持続する"],[558,"reap","収穫する"],[559,"snatch","ひったくる"],[560,"vulgar","下品な"],[561,"weave","織る"],[562,"bilingual","バイリンガルの"],[563,"cherish","大切にする"],[564,"conceal","隠す"],[565,"encyclopedia","百科事典"],[566,"erect","建てる"],[567,"eruption","噴火"],[568,"fluent","流ちょうな"],[569,"inherit","受け継ぐ"],[570,"jeopardy","危険"],[571,"starve","飢える"],[572,"turmoil","混乱"],[573,"tyranny","圧政"],[574,"uphold","支持する"],[575,"boast","自慢する"],[576,"collaborate","協力する"],[577,"dedicate","捧げる"],[578,"derive","由来する"],[579,"descend","降りる"],[580,"pageant","野外劇"],[581,"prohibit","禁止する"],[582,"spectator","観客"],[583,"wholesome","健全な"],[584,"antibiotic","抗生物質"],[585,"bribe","賄賂"],[586,"correspond","一致する"],[587,"despise","軽蔑する"],[588,"equip","備え付ける"],[589,"humid","蒸し暑い"],[590,"nuisance","迷惑"],[591,"provoke","挑発する"],[592,"reconcile","和解させる"],[593,"tedious","退屈な"],[594,"fisherman","漁師"],[595,"ancestor","祖先"],[596,"coincide","同時に起きる"],[597,"commemorate","記念する"],[598,"dissolve","溶ける"],[599,"plunge","飛び込む"],[600,"radiant","輝く"],[601,"tariff","関税"],[602,"foreigner","外国人"],[603,"abolish","廃止する"],[604,"accumulate","蓄積する"],[605,"ape","類人猿"],[606,"kidnap","誘拐する"],[607,"postpone","延期する"],[608,"repetition","繰り返し"],[609,"revise","改訂する"],[610,"speculate","推測する"],[611,"stew","シチュー"],[612,"uncover","暴く"],[613,"wrestle","格闘する"],[614,"aspire","熱望する"],[615,"memorandum","覚書"],[616,"ordeal","試練"],[617,"snowy","雪の降る"],[618,"annoy","いらいらさせる"],[619,"compose","作曲する"],[620,"criterion","基準"],[621,"diminish","減少する"],[622,"stalk","茎"],[623,"suffice","足りる"],[624,"vigorous","精力的な"],[625,"cunning","ずる賢い"],[626,"enroll","入学する"],[627,"prosper","繁栄する"],[628,"sew","縫う"],[629,"stout","頑丈な"],[630,"subordinate","下位の"],[631,"tentative","仮の"],[632,"uneasy","不安な"],[633,"unfold","広げる"],[634,"cafeteria","食堂"],[635,"postcard","はがき"],[636,"clumsy","不器用な"],[637,"indifferent","無関心な"],[638,"invariably","常に"],[639,"riddle","なぞなぞ"],[640,"simulate","模擬実験する"],[641,"sturdy","頑丈な"],[642,"ache","痛む"],[643,"enact","制定する"],[644,"migrate","移住する"],[645,"mourn","悼む"],[646,"mundane","平凡な"],[647,"stereotype","固定観念"],[648,"sterile","不毛の"],[649,"stride","大またに歩く"],[650,"bookstore","書店"],[651,"betray","裏切る"],[652,"cultivate","耕す"],[653,"lavish","ぜいたくな"],[654,"solitude","孤独"],[655,"stumble","つまずく"],[656,"carve","彫る"],[657,"depict","描写する"],[658,"diagnose","診断する"],[659,"embarrass","当惑させる"],[660,"prudent","慎重な"],[661,"solemn","厳粛な"],[662,"spacious","広々とした"],[663,"tumble","転ぶ"],[664,"arithmetic","算数"],[665,"barren","不毛の"],[666,"conceive","思いつく"],[667,"embark","乗り出す"],[668,"hypocrite","偽善者"],[669,"peril","危険"],[670,"precaution","予防策"],[671,"counterfeit","偽造の"],[672,"evade","逃れる"],[673,"gloomy","憂鬱な"],[674,"graceful","優雅な"],[675,"hinder","妨げる"],[676,"preface","序文"],[677,"prescribe","処方する"],[678,"scatter","まき散らす"],[679,"vanish","消える"],[680,"authorize","認可する"],[681,"compile","編集する"],[682,"deceive","だます"],[683,"elevate","上げる"],[684,"impartial","公平な"],[685,"inquire","たずねる"],[686,"pilgrim","巡礼者"],[687,"resent","憤慨する"],[688,"affluent","裕福な"],[689,"conserve","保存する"],[690,"designate","指定する"],[691,"discard","捨てる"],[692,"haste","急ぎ"],[693,"illiterate","読み書きできない"],[694,"stun","びっくりさせる"],[695,"surpass","まさる"],[696,"vending","販売"],[697,"weep","泣く"],[698,"decorate","飾る"],[699,"exert","働かせる"],[700,"infect","感染させる"],[701,"intrigue","興味をそそる"],[702,"mischief","いたずら"],[703,"souvenir","土産"],[704,"recycle","再利用する"],[705,"contradict","矛盾する"],[706,"ingenious","独創的な"],[707,"ponder","熟考する"],[708,"repent","後悔する"],[709,"classmate","同級生"],[710,"indispensable","不可欠な"],[711,"inflict","与える"],[712,"inhibit","抑える"],[713,"hectic","慌ただしい"],[714,"inhabit","住む"],[715,"pamphlet","パンフレット"],[716,"perish","滅びる"],[717,"supervise","監督する"],[718,"weekday","平日"],[719,"allocate","割り当てる"],[720,"gloom","暗闇"],[721,"linger","居残る"],[722,"mammal","哺乳類"],[723,"nurture","育てる"],[724,"quarrel","口論"],[725,"stagnant","停滞した"],[726,"considerate","思いやりのある"],[727,"descendant","子孫"],[728,"enrich","豊かにする"],[729,"overtake","追い越す"],[730,"reassure","安心させる"],[731,"remnant","残り"],[732,"shrug","肩をすくめる"],[733,"acclaim","称賛する"],[734,"crumble","崩れる"],[735,"denote","示す"],[736,"hasty","急いだ"],[737,"imitate","まねる"],[738,"sporadic","散発的な"],[739,"compel","強いる"],[740,"constraint","制約"],[741,"degrade","品位を落とす"],[742,"predominant","優勢な"],[743,"refine","精製する"],[744,"withhold","保留する"],[745,"zeal","熱意"],[746,"injure","傷つける"],[747,"evoke","呼び起こす"],[748,"outweigh","上回る"],[749,"restrain","抑える"],[750,"youngster","子供"],[751,"stair","階段"],[752,"equator","赤道"],[753,"frown","まゆをひそめる"],[754,"emit","放出する"],[755,"guideline","指針"],[756,"lament","嘆く"],[757,"pessimistic","悲観的な"],[758,"pesticide","殺虫剤"],[759,"timid","臆病な"],[760,"ascend","上る"],[761,"jargon","専門用語"],[762,"liberate","解放する"],[763,"loophole","抜け穴"],[764,"tickle","くすぐる"],[765,"diligent","勤勉な"],[766,"endanger","危険にさらす"],[767,"summarize","要約する"],[768,"cripple","不自由にする"],[769,"enlighten","啓発する"],[770,"mislead","誤解させる"],[771,"shatter","粉々にする"],[772,"tempt","誘惑する"],[773,"defiant","反抗的な"],[774,"eloquent","雄弁な"],[775,"entail","伴う"],[776,"mingle","混ざる"],[777,"prolong","延ばす"],[778,"superstition","迷信"],[779,"courteous","礼儀正しい"],[780,"deforestation","森林破壊"],[781,"detergent","洗剤"],[782,"enlarge","拡大する"],[783,"germ","細菌"],[784,"skyscraper","超高層ビル"],[785,"confer","授与する"],[786,"deprive","奪う"],[787,"epoch","時代"],[788,"exaggerate","誇張する"],[789,"obedient","従順な"],[790,"foresee","予見する"],[791,"soothe","なだめる"],[792,"circulate","循環する"],[793,"embody","具体化する"],[794,"skim","ざっと読む"],[795,"infer","推論する"],[796,"chore","雑用"],[797,"deteriorate","悪化する"],[798,"incline","傾ける"],[799,"overwhelm","圧倒する"],[800,"furnish","備え付ける"],[801,"primate","霊長類"],[802,"proverb","ことわざ"],[803,"lenient","寛大な"],[804,"scorn","軽蔑"],[805,"synonym","同義語"],[806,"amuse","楽しませる"],[807,"dormitory","寮"],[808,"omen","前兆"],[809,"dispense","分配する"],[810,"shrewd","賢明な"],[811,"smuggle","密輸する"],[812,"cordial","心からの"],[813,"oblige","強制する"],[814,"pastime","気晴らし"],[815,"subtract","引く"],[816,"sceptical","懐疑的な"],[817,"frighten","怖がらせる"],[818,"housework","家事"],[819,"distort","ゆがめる"],[820,"humiliate","恥をかかせる"],[821,"irritate","いらいらさせる"],[822,"omit","省略する"],[823,"unify","統一する"],[824,"yawn","あくびをする"],[825,"subdue","征服する"],[826,"meager","乏しい"],[827,"extinguish","消す"],[828,"stalemate","行き詰まり"],[829,"tremble","震える"],[830,"erode","侵食する"],[831,"dazzle","まぶしくさせる"],[832,"fluctuate","変動する"],[833,"frustrate","いらだたせる"],[834,"fasten","留める"],[835,"deduce","推論する"],[836,"displace","移動させる"],[837,"erupt","噴火する"],[838,"yearn","切望する"],[839,"monotonous","単調な"],[840,"impair","損なう"],[841,"confine","制限する"],[842,"fortify","強化する"],[843,"nourish","養う"],[844,"obsess","取りつく"],[845,"emigrate","移住する"],[846,"fabricate","でっち上げる"],[847,"oppress","しいたげる"],[848,"detest","ひどく嫌う"],[849,"imprison","投獄する"],[850,"depress","落ち込ませる"],[851,"precede","先立つ"],[852,"thrifty","倹約な"],[853,"bureaucrat","官僚"],[854,"grandparent","祖父母"],[855,"contaminate","汚染する"],[856,"punctual","時間に正確な"],[857,"repress","抑圧する"],[858,"scold","しかる"],[859,"narrate","語る"],[860,"persecute","迫害する"],[861,"enclose","同封する"],[862,"mutter","つぶやく"],[863,"inhabitant","住民"],[864,"insolent","横柄な"],[865,"obstinate","頑固な"],[866,"condense","凝縮する"],[867,"entitle","資格を与える"],[868,"startle","驚かせる"],[869,"paralyze","まひさせる"],[870,"devastate","荒廃させる"],[871,"dwindle","次第に減る"],[872,"inaugurate","就任させる"],[873,"fascinate","夢中にさせる"],[874,"astonish","驚かせる"],[875,"deplore","嘆く"]]/*END*/;
+const STAGE4_FROM=1e9;
+const BATCH=20, KEY='nanko-level3-v1';
+const byId=new Map(WORDS.map(w=>[w[0],w]));
+const ALL_IDS=WORDS.map(w=>w[0]);
+const $=document.getElementById('app');
+
+let S=load();
+function fresh(){return{lap:1,cands:ALL_IDS.slice(),pos:0,pool:[],thisUnknown:[],known:[],seen:[],stats:{c:0,t:0},phase:'home',idx:0,order:[],answers:[],tq:null}}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.lap){if(!s.known){
+  const all=new Set(s.cands);
+  s.known=s.lap===1?s.cands.slice(0,s.pos).filter(i=>!s.thisUnknown.includes(i)&&!s.pool.includes(i)):ALL_IDS.filter(i=>!all.has(i));
+}if(!s.seen)s.seen=s.lap===1?s.cands.slice(0,s.pos):ALL_IDS.slice();return s}}catch(e){}return fresh()}
+const inScope=i=>S.stage4!==false||i<STAGE4_FROM;
+const candsFor=()=>{const k=new Set(S.known),c=ALL_IDS.filter(i=>inScope(i)&&!k.has(i));return c.length?c:ALL_IDS.filter(inScope)};
+/* 対象語リストを作り直し、現在位置(番号)を保つ */
+function recomputeCands(){
+  const cur=S.cands[S.pos],oldMax=S.cands.length?S.cands[S.cands.length-1]:0,nc=candsFor();
+  S.cands=nc;S.pos=cur===undefined?nc.filter(i=>i<=oldMax).length:nc.filter(i=>i<cur).length;
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function speak(t){
+  if(!('speechSynthesis' in window))return;
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.9;speechSynthesis.speak(u)}catch(e){}
+}
+function header(label,i,n){
+  return `<div class="bar"><span>${label}</span><span>${i} / ${n}</span></div><div class="prog"><i style="width:${n?i/n*100:0}%"></i></div>`;
+}
+
+/* ---------- 画面 ---------- */
+function render(){
+  ({home,screen:rScreen,study:rStudy,test:rTest,result:rResult}[S.phase]||home)();
+  window.scrollTo(0,0);
+}
+
+function home(){
+  const acc=S.stats.t?Math.round(S.stats.c/S.stats.t*100):0;
+  const started=S.pos>0||S.pool.length>0||S.lap>1;
+  $.innerHTML=`<h1>南高英単語レベル3トレーナー</h1>
+  <div class="card">
+    <div class="stat"><span>周回</span><b>${S.lap}周目</b></div>
+    <div class="stat"><span>選別の位置</span><b>${Math.min(S.pos,S.cands.length)} / ${S.cands.length}語</b></div>
+    <div class="stat"><span>最初から知っている語（1周目で判定）</span><b>${S.known.length}語</b></div>
+    <div class="stat"><span>復習待ちの語</span><b>${S.pool.length}語</b></div>
+    <div class="stat"><span>累積正答率</span><b>${acc}%（${S.stats.c}/${S.stats.t}）</b></div>
+  </div>
+  <button class="pri" id="go">${started?'続きから':'はじめる'}</button>
+  <button class="dk" id="resetKnown" ${S.known.length?'':'disabled'}>「知ってる」の分類だけリセット</button>
+  <button class="dk" id="reset">進捗をリセット</button>`;
+  document.getElementById('go').onclick=()=>{S.phase='screen';save();render()};
+  document.getElementById('resetKnown').onclick=()=>{
+    if(!confirm('「知っている」に分類した'+S.known.length+'語を元に戻し、再び出題対象にしますか？（周回・進捗は保持）'))return;
+    S.known=[];recomputeCands();save();render();
+  };
+  document.getElementById('reset').onclick=()=>{if(confirm('進捗をすべて消してよいですか？')){S=fresh();save();render()}};
+}
+
+function rScreen(){
+  if(S.pool.length>=BATCH||S.pos>=S.cands.length)return endScreen();
+  const w=byId.get(S.cands[S.pos]);
+  $.innerHTML=header(`${S.lap}周目・選別（分からない語 ${S.pool.length}/${BATCH}）`,S.pos+1,S.cands.length)+
+  `<div class="card"><div class="word">${esc(w[1])}</div>
+   <button class="c" id="pl">🔊 発音</button></div>
+   <div class="row"><button class="c pri" id="know">知ってる</button><button class="c ng" id="dk">分からない</button></div>
+   <button class="dk" id="home">中断してホームへ</button>`;
+  document.getElementById('pl').onclick=()=>speak(w[1]);
+  document.getElementById('know').onclick=()=>{if(!S.seen.includes(w[0])){S.seen.push(w[0]);S.known.push(w[0])}S.pos++;save();render()};
+  document.getElementById('dk').onclick=()=>{
+    if(!S.seen.includes(w[0]))S.seen.push(w[0]);
+    if(!S.pool.includes(w[0]))S.pool.push(w[0]);
+    if(!S.thisUnknown.includes(w[0]))S.thisUnknown.push(w[0]);
+    S.pos++;save();render();
+  };
+  document.getElementById('home').onclick=()=>{S.phase='home';save();render()};
+}
+
+function askStage4(){
+  $.innerHTML=`<h1>Stage4を学習しますか？</h1><div class="card">${STAGE4_FROM-1}番まで到達しました。<br>${STAGE4_FROM}番以降（Stage4）も学習しますか？
+  <div class="sub" style="margin-top:8px">「いいえ」でもホーム画面からいつでも範囲に含められます。</div></div>
+  <div class="row"><button class="c pri" id="s4y">はい</button><button class="c" id="s4n">いいえ</button></div>`;
+  document.getElementById('s4y').onclick=()=>{S.stage4=true;save();render()};
+  document.getElementById('s4n').onclick=()=>{S.stage4=false;recomputeCands();save();render()};
+}
+
+function endScreen(){
+  if(S.pool.length===0){advanceLapIfDone();S.phase='home';save();return render()}
+  S.phase='study';S.idx=0;S.batch=S.pool.slice(0,BATCH);S.order=S.batch.slice();save();render();
+}
+
+function rStudy(){
+  const id=S.order[S.idx],w=byId.get(id),n=S.order.length;
+  $.innerHTML=header('学習モード',S.idx+1,n)+
+  `<div class="card"><div class="word">${esc(w[1])}</div><div class="mean">${esc(w[2])}</div>
+   <button class="c" id="pl">🔊 もう一度聞く</button>
+   <button class="c dk" id="mute">${S.mute?'🔇 自動音声：オフ（タップでオンに）':'🔊 自動音声：オン（タップでオフに）'}</button></div>
+   <div class="row"><button class="c" id="prev" ${S.idx?'':'disabled'}>← 前へ</button>
+   <button class="c pri" id="next">${S.idx===n-1?'テストへ':'次へ →'}</button></div>
+   <button class="dk" id="redo" ${S.idx?'':'disabled'}>↺ 学習を最初からやり直す</button>`;
+  if(!S.mute)speak(w[1]);
+  document.getElementById('pl').onclick=()=>speak(w[1]);
+  document.getElementById('mute').onclick=()=>{S.mute=!S.mute;if(S.mute&&'speechSynthesis' in window)speechSynthesis.cancel();save();render()};
+  document.getElementById('redo').onclick=()=>{S.idx=0;save();render()};
+  document.getElementById('prev').onclick=()=>{S.idx--;save();render()};
+  document.getElementById('next').onclick=()=>{
+    if(S.idx===n-1){S.phase='test';S.idx=0;S.order=shuffle(S.batch);S.answers=[];S.tq=null;}
+    else S.idx++;
+    save();render();
+  };
+}
+
+/* 選択肢生成: 意味の書き出しが同じ型で、番号が近い語を優先 */
+function kind(m){const t=m.replace(/^[～〜]/,'');return (m[0]==='～'||m[0]==='〜'?'~':'')+t.slice(0,1)+(/す?る/.test(m.slice(-3))?'v':'')}
+function makeChoices(id){
+  const w=byId.get(id),k=kind(w[2]);
+  const others=ALL_IDS.filter(i=>i!==id&&byId.get(i)[2]!==w[2]);
+  const score=i=>{const same=kind(byId.get(i)[2])===k?0:1;return same*10000+Math.abs(i-id)+Math.random()*40};
+  const near=others.map(i=>[score(i),i]).sort((a,b)=>a[0]-b[0]).slice(0,12).map(x=>x[1]);
+  const picks=shuffle(near).slice(0,3);
+  return shuffle([id,...picks]);
+}
+
+function rTest(){
+  const n=S.order.length;
+  if(S.idx>=n)return finishTest();
+  const id=S.order[S.idx],w=byId.get(id);
+  if(!S.tq||S.tq.id!==id){S.tq={id,ch:makeChoices(id),sel:null};save()}
+  const q=S.tq,done=q.sel!==null;
+  let btns=q.ch.map(c=>{
+    let cls='';if(done){if(c===id)cls='ok';else if(c===q.sel)cls='ng'}
+    return `<button class="${cls}" data-id="${c}" ${done?'disabled':''}>${esc(byId.get(c)[2])}</button>`;
+  }).join('');
+  btns+=`<button class="dk ${done&&q.sel===0?'ng':''}" data-id="0" ${done?'disabled':''}>分からない</button>`;
+  $.innerHTML=header('テスト',S.idx+1,n)+
+  `<div class="card"><div class="word">${esc(w[1])}</div>
+   <div style="text-align:center"><button class="small-btn c" id="pl">🔊</button></div></div>${btns}`+
+  (done?`<button class="pri" id="next">${S.idx===n-1?'結果を見る':'次へ →'}</button>`:'');
+  document.getElementById('pl').onclick=()=>speak(w[1]);
+  $.querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>{
+    q.sel=+b.dataset.id;S.answers.push({id,ok:q.sel===id});save();render();
+  });
+  if(done)document.getElementById('next').onclick=()=>{S.idx++;S.tq=null;save();render()};
+}
+
+function finishTest(){
+  const ok=S.answers.filter(a=>a.ok).length;
+  S.stats.c+=ok;S.stats.t+=S.answers.length;
+  S.pool=S.answers.filter(a=>!a.ok).map(a=>a.id).concat(S.pool.filter(i=>!S.batch.includes(i)));
+  S.lastScore={ok,n:S.answers.length};
+  S.phase='result';save();render();
+}
+
+function rResult(){
+  const {ok,n}=S.lastScore,wrong=S.answers.filter(a=>!a.ok).map(a=>a.id);
+  const finished=S.pos>=S.cands.length;
+  $.innerHTML=`<h1>テスト結果</h1><div class="card"><div class="big">${ok} / ${n}</div>
+  <div class="sub" style="text-align:center">正答率 ${n?Math.round(ok/n*100):0}%</div></div>
+  ${wrong.length?`<div class="card"><b>間違い・分からなかった語（${wrong.length}語）</b><div class="list">${
+    wrong.map(i=>{const w=byId.get(i);return `<div><b>${esc(w[1])}</b>　${esc(w[2])}</div>`}).join('')}</div>
+    <div class="sub" style="margin-top:8px">次のラウンドの${BATCH}語に含まれます。</div></div>`:''}
+  <button class="pri" id="next">${finished&&!S.pool.length?'次の周へ':'次の単語を選ぶ'}</button>`;
+  document.getElementById('next').onclick=()=>{
+    advanceLapIfDone();
+    S.phase='screen';save();render();
+  };
+}
+
+/* 選別対象を最後まで見終わり、持ち越しも無ければ次の周へ */
+function advanceLapIfDone(){
+  if(S.pos<S.cands.length||S.pool.length>0)return;
+  S.lap++;
+  S.cands=candsFor();
+  S.thisUnknown=[];S.pos=0;
+}
+
+render();
+</script>
+</body>
+</html>
