@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>読む時間・速度計算</title>
+<style>
+  body { font-family: "Meiryo", "Hiragino Sans", sans-serif; max-width: 560px; margin: 24px auto; padding: 0 16px; color: #222; background: #f6f7f9; }
+  h1 { font-size: 1.3rem; }
+  section { background: #fff; border-radius: 10px; padding: 16px 20px; margin-bottom: 18px; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+  h2 { font-size: 1.05rem; margin: 0 0 12px; }
+  label { display: inline-block; margin-right: 8px; }
+  input { font-size: 1.1rem; padding: 6px 8px; width: 90px; border: 1px solid #aaa; border-radius: 6px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 12px; }
+  th, td { border-bottom: 1px solid #ddd; padding: 8px; text-align: left; }
+  td.t { font-size: 1.2rem; font-weight: bold; }
+  .res { font-size: 1.6rem; font-weight: bold; margin-top: 12px; color: #0a5; }
+  .note { font-size: .85rem; color: #666; margin-top: 8px; }
+</style>
+</head>
+<body>
+<h1>読む時間・速度計算</h1>
+
+<section>
+  <h2>① 語数から、読むのにかかる時間を求める</h2>
+  <label>語数 <input id="words" type="number" min="1" value="300"></label> 語
+  <table>
+    <tr><th>レベル</th><th>速度</th><th>所要時間</th></tr>
+    <tr><td>A</td><td>毎分100語</td><td class="t" id="tA"></td></tr>
+    <tr><td>S</td><td>毎分130語</td><td class="t" id="tS"></td></tr>
+    <tr><td>SS</td><td>毎分160語</td><td class="t" id="tSS"></td></tr>
+  </table>
+  <div class="note">秒の小数点以下は四捨五入しています。</div>
+</section>
+
+<section>
+  <h2>② 読むのにかかった時間から、毎分の語数を求める</h2>
+  <p style="margin-top:0">語数：<b id="wShow"></b> 語（①の入力を使用）</p>
+  <label><input id="min" type="number" min="0" value="2"> 分</label>
+  <label><input id="sec" type="number" min="0" value="0"> 秒</label>
+  <div class="res" id="wpm"></div>
+  <div class="note">毎分の語数は小数第1位を四捨五入して整数で表示します。</div>
+</section>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function fmt(totalSec) {
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return m + "分" + String(s).padStart(2, "0") + "秒";
+}
+
+function update() {
+  const w = parseFloat($("words").value);
+  const ok = w > 0;
+  $("wShow").textContent = ok ? w : "-";
+  [["tA", 100], ["tS", 130], ["tSS", 160]].forEach(([id, v]) => {
+    // 先に総秒数を四捨五入してから分・秒に分解（59.5秒→60秒の繰り上がり対策）
+    $(id).textContent = ok ? fmt(Math.round(w / v * 60)) : "-";
+  });
+
+  const total = (parseFloat($("min").value) || 0) * 60 + (parseFloat($("sec").value) || 0);
+  $("wpm").textContent = ok && total > 0
+    ? "毎分 " + Math.round(w / total * 60) + " 語"
+    : "語数と時間を入力してください";
+}
+
+["words", "min", "sec"].forEach(id => $(id).addEventListener("input", update));
+update();
+</script>
+</body>
+</html>
