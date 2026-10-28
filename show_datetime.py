@@ -1,4 +1,9 @@
 from datetime import datetime
 
-now = datetime.now()
-print(now.strftime("%Y-%m-%d %H:%M:%S"))
+
+def format_datetime(dt):
+    return dt.strftime("%Y-%m-%d %H:%M:%S")
+
+
+if __name__ == "__main__":
+    print(format_datetime(datetime.now()))
